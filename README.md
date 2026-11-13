@@ -42,6 +42,7 @@ flowchart LR
 
 ### Phase 1 — Data Collection
 - [ ] ESP32 firmware publishing sensor readings over MQTT
+- [ ] Configurable device ID (optional `DEVICE_ID` in `config.h`, falling back to the MAC-based ID)
 - [ ] Dockerized infrastructure (Mosquitto + InfluxDB)
 - [ ] Ingestion service persisting readings to the time-series database
 - [ ] Anomaly log: manually recorded events (e.g., heating the sensor, opening windows) used as ground truth for evaluation
