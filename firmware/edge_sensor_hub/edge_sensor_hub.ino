@@ -7,7 +7,7 @@
 //   BH1750  (I2C)  ambient light in lux
 //   PIR     (GPIO) motion
 //
-// Board: "ESP32 Dev Module" (Tools > Board > esp32)
+// Board: "ESP32S3 Dev Module" (Tools > Board > esp32)
 // Libraries: PubSubClient (Nick O'Leary), ArduinoJson (Benoit Blanchon, v7),
 //            Adafruit BMP280 Library, BH1750 (Christopher Laws)
 

@@ -1,4 +1,4 @@
-# Firmware (ESP32 + Arduino IDE)
+# Firmware (ESP32-S3 + Arduino IDE)
 
 ## Setup
 
@@ -12,23 +12,30 @@
    - `BH1750` (Christopher Laws)
 3. **Config** – copy `edge_sensor_hub/config.example.h` to `edge_sensor_hub/config.h`
    and fill in Wi-Fi and MQTT broker details. `config.h` is git-ignored.
-4. Open `edge_sensor_hub/edge_sensor_hub.ino`, select **Tools → Board → ESP32 Dev Module**
-   and the correct COM port, then **Upload**.
-5. Open the Serial Monitor at **115200 baud**.
+4. Open `edge_sensor_hub/edge_sensor_hub.ino` and set under **Tools**:
+   - **Board** → *ESP32S3 Dev Module*
+   - **Flash Size** → *16MB* (for N16R8 boards)
+   - **PSRAM** → *OPI PSRAM* (for N16R8 boards)
+   - **USB CDC On Boot** → *Enabled* if you plug into the port labelled **USB**;
+     leave *Disabled* if you use the port labelled **COM/UART**
+   - **Port** → the board's COM port
+5. **Upload**, then open the Serial Monitor at **115200 baud**.
+
+> If the upload doesn't start, hold **BOOT**, tap **RST**, release **BOOT**, and upload again.
 
 > Arduino IDE requires the sketch folder name to match the `.ino` file name —
 > keep `edge_sensor_hub/edge_sensor_hub.ino` together.
 
 ## Wiring
 
-| Sensor | Pin | ESP32 |
+| Sensor | Pin | ESP32-S3 |
 |---|---|---|
 | BMP280 | VCC / GND | 3V3 / GND |
-| BMP280 | SDA / SCL | GPIO 21 / GPIO 22 |
+| BMP280 | SDA / SCL | GPIO 8 / GPIO 9 |
 | BH1750 | VCC / GND | 3V3 / GND |
-| BH1750 | SDA / SCL | GPIO 21 / GPIO 22 (shared bus) |
-| PIR | VCC / GND | 5V (VIN) for HC-SR501, 3V3 for AM312 / GND |
-| PIR | OUT | GPIO 27 |
+| BH1750 | SDA / SCL | GPIO 8 / GPIO 9 (shared bus) |
+| PIR | VCC / GND | 5V for HC-SR501, 3V3 for AM312 / GND |
+| PIR | OUT | GPIO 4 |
 
 Pins can be changed in `config.h`. On boot the Serial Monitor reports which
 I2C addresses were found; a missing sensor is retried every sample and its

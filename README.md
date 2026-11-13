@@ -4,7 +4,7 @@
 
 ![Status](https://img.shields.io/badge/status-work%20in%20progress-yellow)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![Platform](https://img.shields.io/badge/platform-ESP32-red)
+![Platform](https://img.shields.io/badge/platform-ESP32--S3-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Overview
@@ -83,7 +83,7 @@ flowchart LR
 
 | Layer | Technologies |
 |---|---|
-| Hardware | ESP32, BMP280 (temperature/pressure), BH1750 (light), PIR motion sensor |
+| Hardware | ESP32-S3, BMP280 (temperature/pressure), BH1750 (light), PIR motion sensor |
 | Firmware | C++ (Arduino IDE), TensorFlow Lite Micro |
 | Messaging | MQTT (Mosquitto) |
 | Storage | InfluxDB |
@@ -93,6 +93,8 @@ flowchart LR
 
 ## Hardware & Wiring
 
+Board: **ESP32-S3 DevKitC-1** (N16R8 recommended: 16 MB flash, 8 MB PSRAM). The S3's vector instructions accelerate int8 TensorFlow Lite Micro kernels via ESP-NN, and the PSRAM leaves room for larger models in Phase 4.
+
 | Sensor | Measures | Interface |
 |---|---|---|
 | BMP280 | Temperature (°C), barometric pressure (hPa) | I2C (0x76 / 0x77) |
@@ -101,36 +103,36 @@ flowchart LR
 
 Both I2C sensors share the same bus (SDA/SCL lines wired in parallel).
 
-| Sensor pin | ESP32 pin | Notes |
+| Sensor pin | ESP32-S3 pin | Notes |
 |---|---|---|
 | BMP280 VCC | 3V3 | Do not use 5V on bare modules |
 | BMP280 GND | GND | |
-| BMP280 SDA | GPIO 21 | Shared I2C data |
-| BMP280 SCL | GPIO 22 | Shared I2C clock |
+| BMP280 SDA | GPIO 8 | Shared I2C data |
+| BMP280 SCL | GPIO 9 | Shared I2C clock |
 | BH1750 VCC | 3V3 | |
 | BH1750 GND | GND | |
-| BH1750 SDA | GPIO 21 | Shared I2C data |
-| BH1750 SCL | GPIO 22 | Shared I2C clock |
+| BH1750 SDA | GPIO 8 | Shared I2C data |
+| BH1750 SCL | GPIO 9 | Shared I2C clock |
 | BH1750 ADDR | GND or unconnected | Address 0x23 (tie to 3V3 for 0x5C) |
-| PIR VCC | VIN (5V) for HC-SR501 / 3V3 for AM312 | |
+| PIR VCC | 5V for HC-SR501 / 3V3 for AM312 | |
 | PIR GND | GND | |
-| PIR OUT | GPIO 27 | 3.3V logic output, safe for the ESP32 |
+| PIR OUT | GPIO 4 | 3.3V logic output, safe for the ESP32-S3 |
 
 ```
-               ESP32 DevKit
+             ESP32-S3 DevKitC-1
             ┌───────────────┐
   3V3 ──────┤ 3V3           │
   GND ──────┤ GND           │
-            │       GPIO 21 ├──┬── SDA (BMP280)
+            │        GPIO 8 ├──┬── SDA (BMP280)
             │               │  └── SDA (BH1750)
-            │       GPIO 22 ├──┬── SCL (BMP280)
+            │        GPIO 9 ├──┬── SCL (BMP280)
             │               │  └── SCL (BH1750)
-            │       GPIO 27 ├───── OUT (PIR)
-  5V ───────┤ VIN           │      (PIR VCC, if HC-SR501)
+            │        GPIO 4 ├───── OUT (PIR)
+  5V ───────┤ 5V            │      (PIR VCC, if HC-SR501)
             └───────────────┘
 ```
 
-Pins are configurable in `firmware/edge_sensor_hub/config.h`. See [firmware/README.md](firmware/README.md) for build and upload instructions.
+Avoid GPIO 0, 3, 45, 46 (strapping), 19, 20 (USB) and 35–37 (used by octal PSRAM). Pins are configurable in `firmware/edge_sensor_hub/config.h`. See [firmware/README.md](firmware/README.md) for build and upload instructions.
 
 ## Project Structure (planned)
 

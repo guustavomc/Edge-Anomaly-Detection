@@ -18,7 +18,8 @@
 // Sampling
 #define PUBLISH_INTERVAL_MS  5000UL
 
-// Pins
-#define I2C_SDA_PIN  21   // BMP280 + BH1750 share the I2C bus
-#define I2C_SCL_PIN  22
-#define PIR_PIN      27   // PIR digital output
+// Pins (ESP32-S3 DevKitC-1)
+// Avoid: 0, 3, 45, 46 (strapping), 19, 20 (USB), 35-37 (octal PSRAM).
+#define I2C_SDA_PIN  8    // BMP280 + BH1750 share the I2C bus
+#define I2C_SCL_PIN  9
+#define PIR_PIN      4    // PIR digital output
