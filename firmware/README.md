@@ -26,20 +26,48 @@
 > Arduino IDE requires the sketch folder name to match the `.ino` file name —
 > keep `edge_sensor_hub/edge_sensor_hub.ino` together.
 
-## Wiring
+## Hardware & Wiring
 
-| Sensor | Pin | ESP32-S3 |
+Board: **ESP32-S3 DevKitC-1** (N16R8 recommended: 16 MB flash, 8 MB PSRAM). The S3's vector instructions accelerate int8 TensorFlow Lite Micro kernels via ESP-NN, and the PSRAM leaves room for larger models in Phase 4.
+
+| Sensor | Measures | Interface |
 |---|---|---|
-| BMP280 | VCC / GND | 3V3 / GND |
-| BMP280 | SDA / SCL | GPIO 8 / GPIO 9 |
-| BH1750 | VCC / GND | 3V3 / GND |
-| BH1750 | SDA / SCL | GPIO 8 / GPIO 9 (shared bus) |
-| PIR | VCC / GND | 5V for HC-SR501, 3V3 for AM312 / GND |
-| PIR | OUT | GPIO 4 |
+| BMP280 | Temperature (°C), barometric pressure (hPa) | I2C (0x76 / 0x77) |
+| BH1750 | Ambient light (lux) | I2C (0x23 / 0x5C) |
+| PIR (HC-SR501 or AM312) | Motion | Digital GPIO |
 
-Pins can be changed in `config.h`. On boot the Serial Monitor reports which
-I2C addresses were found; a missing sensor is retried every sample and its
-fields are simply left out of the payload until it responds.
+Both I2C sensors share the same bus (SDA/SCL lines wired in parallel).
+
+| Sensor pin | ESP32-S3 pin | Notes |
+|---|---|---|
+| BMP280 VCC | 3V3 | Do not use 5V on bare modules |
+| BMP280 GND | GND | |
+| BMP280 SDA | GPIO 8 | Shared I2C data |
+| BMP280 SCL | GPIO 9 | Shared I2C clock |
+| BH1750 VCC | 3V3 | |
+| BH1750 GND | GND | |
+| BH1750 SDA | GPIO 8 | Shared I2C data |
+| BH1750 SCL | GPIO 9 | Shared I2C clock |
+| BH1750 ADDR | GND or unconnected | Address 0x23 (tie to 3V3 for 0x5C) |
+| PIR VCC | 5V for HC-SR501 / 3V3 for AM312 | |
+| PIR GND | GND | |
+| PIR OUT | GPIO 4 | 3.3V logic output, safe for the ESP32-S3 |
+
+```
+             ESP32-S3 DevKitC-1
+            ┌───────────────┐
+  3V3 ──────┤ 3V3           │
+  GND ──────┤ GND           │
+            │        GPIO 8 ├──┬── SDA (BMP280)
+            │               │  └── SDA (BH1750)
+            │        GPIO 9 ├──┬── SCL (BMP280)
+            │               │  └── SCL (BH1750)
+            │        GPIO 4 ├───── OUT (PIR)
+  5V ───────┤ 5V            │      (PIR VCC, if HC-SR501)
+            └───────────────┘
+```
+
+Avoid GPIO 0, 3, 45, 46 (strapping), 19, 20 (USB) and 35–37 (used by octal PSRAM). Pins are configurable in `edge_sensor_hub/config.h`. On boot the Serial Monitor reports which I2C addresses were found; a missing sensor is retried every sample and its fields are simply left out of the payload until it responds.
 
 ## MQTT contract
 
