@@ -83,13 +83,54 @@ flowchart LR
 
 | Layer | Technologies |
 |---|---|
-| Hardware | ESP32, temperature/humidity sensor (e.g., DHT22 / BME280), light sensor, current sensor (e.g., INA219) |
-| Firmware | C++ (Arduino / PlatformIO), TensorFlow Lite Micro |
+| Hardware | ESP32, BMP280 (temperature/pressure), BH1750 (light), PIR motion sensor |
+| Firmware | C++ (Arduino IDE), TensorFlow Lite Micro |
 | Messaging | MQTT (Mosquitto) |
 | Storage | InfluxDB |
 | ML | Python, NumPy, pandas, scikit-learn, TensorFlow / Keras |
 | Visualization | Matplotlib, Grafana |
 | Infrastructure | Docker, Docker Compose |
+
+## Hardware & Wiring
+
+| Sensor | Measures | Interface |
+|---|---|---|
+| BMP280 | Temperature (°C), barometric pressure (hPa) | I2C (0x76 / 0x77) |
+| BH1750 | Ambient light (lux) | I2C (0x23 / 0x5C) |
+| PIR (HC-SR501 or AM312) | Motion | Digital GPIO |
+
+Both I2C sensors share the same bus (SDA/SCL lines wired in parallel).
+
+| Sensor pin | ESP32 pin | Notes |
+|---|---|---|
+| BMP280 VCC | 3V3 | Do not use 5V on bare modules |
+| BMP280 GND | GND | |
+| BMP280 SDA | GPIO 21 | Shared I2C data |
+| BMP280 SCL | GPIO 22 | Shared I2C clock |
+| BH1750 VCC | 3V3 | |
+| BH1750 GND | GND | |
+| BH1750 SDA | GPIO 21 | Shared I2C data |
+| BH1750 SCL | GPIO 22 | Shared I2C clock |
+| BH1750 ADDR | GND or unconnected | Address 0x23 (tie to 3V3 for 0x5C) |
+| PIR VCC | VIN (5V) for HC-SR501 / 3V3 for AM312 | |
+| PIR GND | GND | |
+| PIR OUT | GPIO 27 | 3.3V logic output, safe for the ESP32 |
+
+```
+               ESP32 DevKit
+            ┌───────────────┐
+  3V3 ──────┤ 3V3           │
+  GND ──────┤ GND           │
+            │       GPIO 21 ├──┬── SDA (BMP280)
+            │               │  └── SDA (BH1750)
+            │       GPIO 22 ├──┬── SCL (BMP280)
+            │               │  └── SCL (BH1750)
+            │       GPIO 27 ├───── OUT (PIR)
+  5V ───────┤ VIN           │      (PIR VCC, if HC-SR501)
+            └───────────────┘
+```
+
+Pins are configurable in `firmware/edge_sensor_hub/config.h`. See [firmware/README.md](firmware/README.md) for build and upload instructions.
 
 ## Project Structure (planned)
 
