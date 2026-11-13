@@ -1,0 +1,17 @@
+# Firmware secrets
+firmware/**/config.h
+
+# Arduino build output
+firmware/**/build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Env / OS
+.env
+.vscode/
+.DS_Store
+Thumbs.db
